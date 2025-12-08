@@ -13,7 +13,7 @@
 		</option>
 		<setting name="console_application" value="true"/>
 		<capability>
-			<concurrency support="none"/>
+			<concurrency support="scoop" use="thread"/>
 			<void_safety support="all"/>
 		</capability>
 		<library name="base" location="$ISE_LIBRARY\library\base\base.ecf"/>
