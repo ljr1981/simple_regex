@@ -64,7 +64,9 @@ feature {NONE} -- Initialization
 
 feature -- Compilation
 
-	compile (a_pattern: READABLE_STRING_GENERAL)
+	compile,
+	set_pattern,
+	load_pattern (a_pattern: READABLE_STRING_GENERAL)
 			-- Compile pattern for matching
 		require
 			pattern_attached: a_pattern /= Void
@@ -116,7 +118,10 @@ feature -- Pattern Validation
 
 feature -- Matching
 
-	match (a_subject: READABLE_STRING_GENERAL): SIMPLE_REGEX_MATCH
+	match,
+	find,
+	search,
+	find_first (a_subject: READABLE_STRING_GENERAL): SIMPLE_REGEX_MATCH
 			-- Match subject against compiled pattern
 		require
 			compiled: is_compiled
@@ -130,7 +135,10 @@ feature -- Matching
 			result_attached: Result /= Void
 		end
 
-	match_all (a_subject: READABLE_STRING_GENERAL): SIMPLE_REGEX_MATCH_LIST
+	match_all,
+	find_all,
+	search_all,
+	matches (a_subject: READABLE_STRING_GENERAL): SIMPLE_REGEX_MATCH_LIST
 			-- Find all matches in subject
 		require
 			compiled: is_compiled
@@ -156,7 +164,9 @@ feature -- Matching
 
 feature -- Replacement
 
-	replace (a_subject, a_replacement: READABLE_STRING_GENERAL): STRING_32
+	replace,
+	substitute,
+	sub (a_subject, a_replacement: READABLE_STRING_GENERAL): STRING_32
 			-- Replace first match in subject
 			-- Use \n\ for group references (e.g., \1\, \2\)
 		require
@@ -176,7 +186,9 @@ feature -- Replacement
 			result_attached: Result /= Void
 		end
 
-	replace_all (a_subject, a_replacement: READABLE_STRING_GENERAL): STRING_32
+	replace_all,
+	substitute_all,
+	gsub (a_subject, a_replacement: READABLE_STRING_GENERAL): STRING_32
 			-- Replace all matches in subject
 			-- Use \n\ for group references (e.g., \1\, \2\)
 		require
@@ -198,7 +210,9 @@ feature -- Replacement
 
 feature -- Splitting
 
-	split (a_subject: READABLE_STRING_GENERAL): ARRAYED_LIST [STRING_32]
+	split,
+	tokenize,
+	divide (a_subject: READABLE_STRING_GENERAL): ARRAYED_LIST [STRING_32]
 			-- Split subject by pattern
 		require
 			compiled: is_compiled
@@ -269,7 +283,10 @@ feature -- Option Queries
 
 feature -- Convenience Class Methods (with caching)
 
-	matches_pattern (a_pattern, a_subject: READABLE_STRING_GENERAL): BOOLEAN
+	matches_pattern,
+	test,
+	is_match,
+	contains_pattern (a_pattern, a_subject: READABLE_STRING_GENERAL): BOOLEAN
 			-- Does subject contain a match for pattern?
 			-- Pattern is cached after first compilation
 		require
@@ -407,7 +424,9 @@ feature -- Convenience Class Methods (with caching)
 
 feature -- Safety
 
-	escape (a_literal: READABLE_STRING_GENERAL): STRING_32
+	escape,
+	quote,
+	literal (a_literal: READABLE_STRING_GENERAL): STRING_32
 			-- Escape special regex characters in literal for safe matching
 		require
 			literal_attached: a_literal /= Void
