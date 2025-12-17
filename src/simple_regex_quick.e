@@ -37,7 +37,7 @@ feature {NONE} -- Initialization
 			-- Create quick regex facade.
 		do
 			create regex.make
-			create logger.make ("regex_quick")
+			
 		ensure
 			regex_exists: regex /= Void
 		end
@@ -50,8 +50,7 @@ feature -- Matching
 			pattern_not_empty: not a_pattern.is_empty
 			text_not_void: a_text /= Void
 		do
-			logger.debug_log ("Matching: " + a_pattern)
-			Result := regex.matches (a_pattern, a_text)
+			Result := regex.is_match (a_pattern, a_text)
 		end
 
 	matches_full (a_pattern: STRING; a_text: STRING): BOOLEAN
@@ -60,7 +59,7 @@ feature -- Matching
 			pattern_not_empty: not a_pattern.is_empty
 			text_not_void: a_text /= Void
 		do
-			Result := regex.matches ("^" + a_pattern + "$", a_text)
+			Result := regex.is_match ("^" + a_pattern + "$", a_text)
 		end
 
 	is_match (a_pattern: STRING; a_text: STRING): BOOLEAN
@@ -80,8 +79,7 @@ feature -- Finding
 			pattern_not_empty: not a_pattern.is_empty
 			text_not_void: a_text /= Void
 		do
-			logger.debug_log ("Finding: " + a_pattern)
-			Result := regex.first_match (a_pattern, a_text)
+			if attached regex.first_match_for (a_pattern, a_text) as l_r then Result := l_r.to_string_8 end
 		end
 
 	find_all (a_pattern: STRING; a_text: STRING): ARRAYED_LIST [STRING]
@@ -90,8 +88,7 @@ feature -- Finding
 			pattern_not_empty: not a_pattern.is_empty
 			text_not_void: a_text /= Void
 		do
-			logger.debug_log ("Finding all: " + a_pattern)
-			Result := regex.all_matches (a_pattern, a_text)
+			create Result.make (10); across regex.all_matches_for (a_pattern, a_text) as ic loop Result.extend (ic.item.to_string_8) end
 			if Result = Void then
 				create Result.make (0)
 			end
@@ -106,7 +103,7 @@ feature -- Finding
 			pattern_not_empty: not a_pattern.is_empty
 			text_not_void: a_text /= Void
 		do
-			Result := regex.capture_groups (a_pattern, a_text)
+			create Result.make (0) -- TODO: implement capture groups
 			if Result = Void then
 				create Result.make (0)
 			end
@@ -123,8 +120,7 @@ feature -- Replacing
 			replacement_not_void: a_replacement /= Void
 			text_not_void: a_text /= Void
 		do
-			logger.debug_log ("Replacing first: " + a_pattern)
-			Result := regex.replace_first (a_pattern, a_replacement, a_text)
+			Result := regex.replace_first_match (a_pattern, a_text, a_replacement).to_string_8
 			if Result = Void then
 				Result := a_text
 			end
@@ -139,8 +135,7 @@ feature -- Replacing
 			replacement_not_void: a_replacement /= Void
 			text_not_void: a_text /= Void
 		do
-			logger.debug_log ("Replacing all: " + a_pattern)
-			Result := regex.replace_all (a_pattern, a_replacement, a_text)
+			Result := regex.replace_all_matches (a_pattern, a_text, a_replacement).to_string_8
 			if Result = Void then
 				Result := a_text
 			end
@@ -156,7 +151,7 @@ feature -- Splitting
 			pattern_not_empty: not a_pattern.is_empty
 			text_not_void: a_text /= Void
 		do
-			Result := regex.split (a_pattern, a_text)
+			create Result.make (10); across regex.split_by_pattern (a_pattern, a_text) as ic loop Result.extend (ic.item.to_string_8) end
 			if Result = Void then
 				create Result.make (1)
 				Result.extend (a_text)
@@ -172,7 +167,7 @@ feature -- Common Pattern Shortcuts
 		require
 			text_not_void: a_text /= Void
 		do
-			Result := matches ("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", a_text)
+			Result := matches ("^[a-zA-Z0-9._%%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", a_text)
 		end
 
 	is_url (a_text: STRING): BOOLEAN
@@ -205,7 +200,7 @@ feature -- Common Pattern Shortcuts
 		require
 			text_not_void: a_text /= Void
 		do
-			Result := find_all ("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}", a_text)
+			Result := find_all ("[a-zA-Z0-9._%%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}", a_text)
 		ensure
 			result_exists: Result /= Void
 		end
@@ -261,11 +256,8 @@ feature -- Advanced Access
 
 feature {NONE} -- Implementation
 
-	logger: SIMPLE_LOGGER
-			-- Logger for debugging.
 
 invariant
 	regex_exists: regex /= Void
-	logger_exists: logger /= Void
 
 end
